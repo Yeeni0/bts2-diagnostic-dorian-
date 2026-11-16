@@ -1,6 +1,5 @@
 <?php
-// Connexion à la base SQLite. Si salles.db n'existe pas encore,
-// il est créé et rempli à partir de schema.sql.
+
 
 function getPdo(): PDO
 {

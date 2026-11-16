@@ -1,11 +1,5 @@
 <?php
-// API JSON des salles
-//   GET  api.php                                  -> liste des salles
-//   GET  api.php?capaciteMin=10                   -> salles d'au moins 10 places
-//   POST api.php {action:"add",    nom, capacite} -> ajout
-//   POST api.php {action:"edit",   id, nom, capacite} -> modification
-//   POST api.php {action:"delete", id}            -> suppression
-// Toute erreur renvoie {ok:false, message:"..."} : la page ne plante jamais.
+
 
 require __DIR__ . '/db.php';
 header('Content-Type: application/json; charset=utf-8');
@@ -34,7 +28,7 @@ function listeSalles(PDO $pdo): array
     return $pdo->query('SELECT id, nom, capacite FROM salle ORDER BY id')->fetchAll();
 }
 
-// mb_strtolower gère les accents (É -> é) ; repli si l'extension mbstring est désactivée
+
 function minuscules(string $s): string
 {
     return function_exists('mb_strtolower') ? mb_strtolower($s, 'UTF-8') : strtolower($s);
@@ -50,8 +44,7 @@ function validerNom(PDO $pdo, $valeur, ?int $idExclu = null): string
         erreur('Le nom ne doit pas dépasser 60 caractères.');
     }
 
-    // Comparaison sans tenir compte des majuscules, accents compris (É = é),
-    // ce que COLLATE NOCASE de SQLite ne fait que pour les lettres ASCII
+    
     $stmt = $pdo->prepare('SELECT nom FROM salle WHERE id <> :id');
     $stmt->execute(['id' => $idExclu ?? 0]);
     foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $existant) {
@@ -102,7 +95,7 @@ try {
     $pdo = getPdo();
 
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-        // Recherche par capacité : api.php?capaciteMin=10 -> salles d'au moins 10 places
+        
         if (isset($_GET['capaciteMin']) && texte($_GET['capaciteMin']) !== '') {
             $min = validerCapacite($_GET['capaciteMin']);
             $stmt = $pdo->prepare('SELECT id, nom, capacite FROM salle WHERE capacite >= :min ORDER BY capacite, nom');
@@ -154,7 +147,7 @@ try {
             erreur('Action inconnue.');
     }
 } catch (PDOException $e) {
-    // Filet de sécurité : contraintes UNIQUE / CHECK de la base, base inaccessible…
+    
     if (str_contains($e->getMessage(), 'UNIQUE')) {
         erreur('Une salle porte déjà ce nom.', 409);
     }
