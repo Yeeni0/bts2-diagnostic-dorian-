@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Réservation Disneyland Paris</title>
+    <style>
+        
+        body {
+            
+
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .reservation-main {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 120px 20px 40px; 
+        }
+
+        .reservation-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        .reservation-card h1 {
+            color: #0066cc;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .note {
+            background-color: #e3f2fd;
+            color: #0d47a1;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            border-left: 5px solid #0066cc;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group select, .form-group input {
+            box-sizing: border-box;
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .form-group select:focus {
+            border-color: #0066cc;
+        }
+
+        .room-management {
+            margin-top: 1.5rem;
+            text-align: left;
+        }
+
+        .room-management summary {
+            color: #0066cc;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .room-management-content {
+            padding-top: 1rem;
+        }
+
+        .large-room-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .room-management-message {
+            min-height: 1.25rem;
+            color: #0d47a1;
+            font-size: 0.9rem;
+        }
+
+        .room-management-message.error {
+            color: #b71c1c;
+            font-weight: bold;
+        }
+
+        .room-search label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .room-search-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .room-search-row input {
+            box-sizing: border-box;
+            min-width: 0;
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 1rem;
+        }
+
+        .btn-small {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            padding: 0 14px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn-small.btn-light {
+            background-color: white;
+            color: #666;
+            border: 2px solid #ddd;
+        }
+
+        .room-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+        }
+
+        .room-table th, .room-table td {
+            text-align: left;
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .room-table th {
+            color: #0066cc;
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 2rem;
+        }
+
+        .btn-primary {
+            flex: 1;
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-primary:hover {
+            background-color: #004c99;
+        }
+
+        .btn-secondary {
+            flex: 1;
+            background-color: white;
+            color: #666;
+            border: 2px solid #ddd;
+            padding: 12px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary:hover {
+            border-color: #666;
+            color: #333;
+        }
+        
+       
+        .simple-footer {
+            text-align: center;
+            color: white;
+            padding: 20px;
+            background: rgba(0,0,0,0.5);
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <nav class="main-nav">
+            <div class="nav-logo">
+            </div>
+
+        </nav>
+    </header>
+
+    <main class="reservation-main">
+        <div class="container reservation-card">
+            <h1>Réserver votre Salle</h1>
+            <form id="bookingForm" onsubmit="return validateForm(event)">
+                
+                <div class="form-group">
+                    <label for="salleSelect">Choix de la salle :</label>
+                    <select id="salleSelect" name="salleSelect" required>
+                    </select>
+                </div>
+
+                <details class="room-management">
+                    <summary>Gérer les salles</summary>
+                    <div class="room-management-content">
+                        <div class="room-search">
+                            <label for="searchCapacityInput">Capacité minimale :</label>
+                            <div class="room-search-row">
+                                <input type="text" id="searchCapacityInput" inputmode="numeric" maxlength="6" placeholder="ex : 8">
+                                <button type="button" class="btn-small" id="searchButton">Rechercher</button>
+                                <button type="button" class="btn-small btn-light" id="resetSearchButton">Tout afficher</button>
+                            </div>
+                            <p id="searchMessage" class="room-management-message" role="status" aria-live="polite"></p>
+                        </div>
+
+                        <table class="room-table">
+                            <thead>
+                                <tr><th>Salle</th><th>Capacité</th></tr>
+                            </thead>
+                            <tbody id="roomTableBody"></tbody>
+                        </table>
+
+                        <div class="form-group">
+                            <label for="roomToManage">Salle à modifier ou supprimer :</label>
+                            <select id="roomToManage"></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="roomNameInput">Nom de la salle :</label>
+                            <input type="text" id="roomNameInput" maxlength="60">
+                        </div>
+                        <div class="form-group">
+                            <label for="roomCapacityInput">Capacité (personnes) :</label>
+                            <input type="text" id="roomCapacityInput" inputmode="numeric" maxlength="6">
+                        </div>
+                        <div class="actions">
+                            <button type="button" class="btn-primary" id="addRoomButton">Ajouter</button>
+                            <button type="button" class="btn-secondary" id="editRoomButton">Modifier</button>
+                            <button type="button" class="btn-secondary" id="deleteRoomButton">Supprimer</button>
+                        </div>
+                        <p id="roomManagementMessage" class="room-management-message" role="status" aria-live="polite"></p>
+                    </div>
+                </details>
+
+                <div class="form-group">
+                    <label for="dateArrivee">Date  :</label>
+                    <input type="date" id="dateArrivee" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="numPeople">Nombre de personnes :</label>
+                    <select id="numPeople" name="numPeople">
+                        <option value="1">1 Personne</option>
+                        <option value="2" selected>2 Personnes</option>
+                        <option value="3">3 Personnes</option>
+                        <option value="4">4 Personnes</option>
+                        <option value="5">5 Personnes </option>
+                        <option value="6">6 Personnes </option>
+                        <option value="7">7 Personnes </option>
+                        <option value="8">8 Personnes ou plus</option>
+                    
+                    </select>
+                </div>
+
+                <div id="peopleContainer" class="people-container"></div>
+
+                <div class="actions">
+                    <button type="button" class="btn-secondary" onclick="history.back()">Annuler</button>
+                    <button type="submit" class="btn-primary">Confirmer la réservation</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        const API_URL = 'api.php';
+        const LARGE_GROUP_SIZE = 8;
+        const roomManagementMessage = document.getElementById('roomManagementMessage');
+        const salleSelect = document.getElementById('salleSelect');
+        const numPeopleSelect = document.getElementById('numPeople');
+        const roomToManageSelect = document.getElementById('roomToManage');
+        const roomNameInput = document.getElementById('roomNameInput');
+        const roomCapacityInput = document.getElementById('roomCapacityInput');
+        let rooms = [];
+
+        function setRoomManagementMessage(message, isError) {
+            roomManagementMessage.textContent = message;
+            roomManagementMessage.classList.toggle('error', Boolean(isError));
+        }
+
+        function toRooms(salles) {
+            return salles.map(s => ({
+                id: String(s.id),
+                name: s.nom,
+                capacite: Number(s.capacite),
+                supportsLargeGroups: Number(s.capacite) >= LARGE_GROUP_SIZE
+            }));
+        }
+
+       
+        async function callApi(method, body, query) {
+            try {
+                const response = await fetch(API_URL + (query || ''), {
+                    method: method,
+                    headers: body ? { 'Content-Type': 'application/json' } : {},
+                    body: body ? JSON.stringify(body) : undefined
+                });
+                return await response.json();
+            } catch (error) {
+                return { ok: false, message: 'Le serveur ne répond pas. Lance la page avec « php -S localhost:8000 ».' };
+            }
+        }
+
+        function renderRoomSelects(preferredRoomId) {
+            const selectedRoomId = preferredRoomId || salleSelect.value;
+            const managedRoomId = roomToManageSelect.value;
+            salleSelect.replaceChildren();
+            roomToManageSelect.replaceChildren();
+
+            if (rooms.length === 0) {
+                const emptyOption = document.createElement('option');
+                emptyOption.value = '';
+                emptyOption.textContent = 'Aucune salle disponible';
+                salleSelect.appendChild(emptyOption);
+                roomToManageSelect.appendChild(emptyOption.cloneNode(true));
+                return;
+            }
+
+            rooms.forEach(room => {
+                const option = document.createElement('option');
+                option.value = room.id;
+                option.textContent = room.name + (room.supportsLargeGroups ? ' (à partir de 8 personnes)' : '');
+                salleSelect.appendChild(option);
+
+                const managedOption = document.createElement('option');
+                managedOption.value = room.id;
+                managedOption.textContent = room.name;
+                roomToManageSelect.appendChild(managedOption);
+            });
+
+            salleSelect.value = rooms.some(room => room.id === selectedRoomId)
+                ? selectedRoomId
+                : rooms[0].id;
+            roomToManageSelect.value = rooms.some(room => room.id === managedRoomId)
+                ? managedRoomId
+                : rooms[0].id;
+
+            const largeGroupsOption = numPeopleSelect.querySelector('option[value="8"]');
+            largeGroupsOption.disabled = !rooms.some(room => room.supportsLargeGroups);
+            if (numPeopleSelect.value === '8' && largeGroupsOption.disabled) {
+                numPeopleSelect.value = '7';
+            }
+
+            const selectedRoom = rooms.find(room => room.id === salleSelect.value);
+            if (numPeopleSelect.value === '8' && selectedRoom && !selectedRoom.supportsLargeGroups) {
+                salleSelect.value = rooms.find(room => room.supportsLargeGroups).id;
+            } else if (numPeopleSelect.value !== '8' && selectedRoom && selectedRoom.supportsLargeGroups) {
+                const regularRoom = rooms.find(room => !room.supportsLargeGroups);
+                if (regularRoom) {
+                    salleSelect.value = regularRoom.id;
+                }
+            }
+        }
+
+        function updateRoomManagementFields() {
+            const room = rooms.find(item => item.id === roomToManageSelect.value);
+            if (!room) {
+                return;
+            }
+            roomNameInput.value = room.name;
+            roomCapacityInput.value = room.capacite;
+        }
+
+        function updateRooms(updatedRooms, preferredSalleId, preferredManagedRoomId, successMessage) {
+            rooms = updatedRooms;
+            renderRoomSelects(preferredSalleId);
+            if (rooms.length > 0) {
+                roomToManageSelect.value = rooms.some(room => room.id === preferredManagedRoomId)
+                    ? preferredManagedRoomId
+                    : rooms[0].id;
+            }
+            updateRoomManagementFields();
+            setRoomManagementMessage(successMessage);
+            refreshRoomTable();
+        }
+
+        
+        const roomTableBody = document.getElementById('roomTableBody');
+        const searchCapacityInput = document.getElementById('searchCapacityInput');
+        const searchMessage = document.getElementById('searchMessage');
+
+        function setSearchMessage(message, isError) {
+            searchMessage.textContent = message;
+            searchMessage.classList.toggle('error', Boolean(isError));
+        }
+
+        function renderRoomTable(list) {
+            roomTableBody.replaceChildren();
+            if (list.length === 0) {
+                const row = roomTableBody.insertRow();
+                const cell = row.insertCell();
+                cell.colSpan = 2;
+                cell.textContent = 'Aucune salle.';
+                return;
+            }
+            list.forEach(room => {
+                const row = roomTableBody.insertRow();
+                row.insertCell().textContent = room.name;
+                row.insertCell().textContent = room.capacite + ' pers.';
+            });
+        }
+
+       
+        async function refreshRoomTable() {
+            const min = searchCapacityInput.value.trim();
+            if (min === '') {
+                renderRoomTable(rooms);
+                setSearchMessage('');
+                return;
+            }
+            const result = await callApi('GET', null, '?capaciteMin=' + encodeURIComponent(min));
+            if (!result.ok) {
+                setSearchMessage(result.message || 'Erreur de recherche.', true);
+                return;
+            }
+            const found = toRooms(result.salles);
+            renderRoomTable(found);
+            setSearchMessage(found.length + ' salle(s) d\'au moins ' + min + ' places.');
+        }
+
+        document.getElementById('searchButton').addEventListener('click', function () {
+            if (searchCapacityInput.value.trim() === '') {
+                setSearchMessage('Saisis une capacité minimale.', true);
+                return;
+            }
+            refreshRoomTable();
+        });
+
+        searchCapacityInput.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter') {
+                event.preventDefault(); 
+                document.getElementById('searchButton').click();
+            }
+        });
+
+        document.getElementById('resetSearchButton').addEventListener('click', function () {
+            searchCapacityInput.value = '';
+            refreshRoomTable();
+        });
+
+       
+        function applyApiResult(result, preferredManagedRoomId) {
+            if (!result.ok) {
+                setRoomManagementMessage(result.message || 'Erreur inconnue.', true);
+                return;
+            }
+            updateRooms(toRooms(result.salles), salleSelect.value, preferredManagedRoomId, result.message);
+        }
+
+        async function loadRooms() {
+            const result = await callApi('GET');
+            if (!result.ok) {
+                rooms = [];
+                renderRoomSelects();
+                renderRoomTable([]);
+                setRoomManagementMessage(result.message || 'Impossible de charger les salles.', true);
+                return;
+            }
+            rooms = toRooms(result.salles);
+            renderRoomSelects();
+            updateRoomManagementFields();
+            renderRoomTable(rooms);
+        }
+
+        loadRooms();
+
+        salleSelect.addEventListener('change', function () {
+            const selectedRoom = rooms.find(room => room.id === salleSelect.value);
+            if (selectedRoom && selectedRoom.supportsLargeGroups) {
+                numPeopleSelect.value = '8';
+            } else if (numPeopleSelect.value === '8') {
+                numPeopleSelect.value = '7';
+            }
+        });
+
+        numPeopleSelect.addEventListener('change', function () {
+            if (numPeopleSelect.value === '8') {
+                const selectedRoom = rooms.find(room => room.id === salleSelect.value);
+                const largeRoom = (selectedRoom && selectedRoom.supportsLargeGroups)
+                    ? selectedRoom
+                    : rooms.slice().reverse().find(room => room.supportsLargeGroups);
+                if (largeRoom) {
+                    salleSelect.value = largeRoom.id;
+                }
+            } else {
+                const selectedRoom = rooms.find(room => room.id === salleSelect.value);
+                const regularRoom = rooms.find(room => !room.supportsLargeGroups);
+                if (selectedRoom && selectedRoom.supportsLargeGroups && regularRoom) {
+                    salleSelect.value = regularRoom.id;
+                }
+            }
+        });
+
+        roomToManageSelect.addEventListener('change', updateRoomManagementFields);
+
+        
+        document.getElementById('addRoomButton').addEventListener('click', async function () {
+            const result = await callApi('POST', {
+                action: 'add',
+                nom: roomNameInput.value,
+                capacite: roomCapacityInput.value
+            });
+            applyApiResult(result, result.ok ? String(result.id) : null);
+        });
+
+        document.getElementById('editRoomButton').addEventListener('click', async function () {
+            const roomId = roomToManageSelect.value;
+            const result = await callApi('POST', {
+                action: 'edit',
+                id: roomId,
+                nom: roomNameInput.value,
+                capacite: roomCapacityInput.value
+            });
+            applyApiResult(result, roomId);
+        });
+
+        document.getElementById('deleteRoomButton').addEventListener('click', async function () {
+            const roomId = roomToManageSelect.value;
+            const room = rooms.find(item => item.id === roomId);
+            if (!room || !window.confirm('Supprimer la salle « ' + room.name + ' » ?')) {
+                return;
+            }
+            const result = await callApi('POST', { action: 'delete', id: roomId });
+            applyApiResult(result, null);
+        });
+
+        function validateForm(event) {
+            event.preventDefault();
+
+
+            const salle = document.getElementById('salleSelect');
+            if (rooms.length === 0 || salle.selectedIndex < 0 || !salle.value) {
+                alert('Aucune salle disponible pour le moment.');
+                return false;
+            }
+            const salleName = salle.options[salle.selectedIndex].text;
+            
+            
+            alert('🎉 Félicitations !\n\nVotre demande de réservation pour la "' + salleName + '" a bien été prise en compte.\n\nVous allez recevoir un email de confirmation.');
+            
+            
+            window.location.href = "ProjetDisney3.html";
+            return false;
+        }
+    </script>
+
+</body>
+</html>
